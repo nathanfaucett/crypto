@@ -1,10 +1,10 @@
 {
-  "name": "crypto",
+  "name": "crypto_browser",
   "version": "0.0.1",
   "description": "crypto for the browser and node.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/nathanfaucett/crypto.git"
+    "url": "https://github.com/nathanfaucett/crypto_browser.git"
   },
   "main": "src/index.js",
   "keywords": [
