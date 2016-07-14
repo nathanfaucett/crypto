@@ -1,5 +1,5 @@
-var isNumber = require("is_number"),
-    isFunction = require("is_function");
+var isNumber = require("@nathanfaucett/is_number"),
+    isFunction = require("@nathanfaucett/is_function");
 
 
 var crypto = exports,
