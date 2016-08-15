@@ -6,19 +6,19 @@ var crypto = exports,
 
     NativeUint8Array = typeof(Uint8Array) !== "undefined" ? Uint8Array : Array,
     globalCrypto = global.crypto || global.msCrypto,
-    randomBytes;
+    baseRandomBytes;
 
 
-crypto.rotl = function(n, b) {
+function rotl(n, b) {
     return (n << b) | (n >>> (32 - b));
-};
+}
 
-crypto.rotr = function(n, b) {
+function rotr(n, b) {
     return (n << (32 - b)) | (n >>> b);
-};
+}
 
-function endian(n) {
-    return crypto.rotl(n, 8) & 0x00FF00FF | crypto.rotl(n, 24) & 0xFF00FF00;
+function endianNumber(number) {
+    return rotl(number, 8) & 0x00FF00FF | rotl(number, 24) & 0xFF00FF00;
 }
 
 function endianArray(array) {
@@ -26,26 +26,26 @@ function endianArray(array) {
         il = array.length - 1;
 
     while (i++ < il) {
-        array[i] = endian(array[i]);
+        array[i] = endianNumber(array[i]);
     }
 
     return array;
 }
 
-crypto.endian = function(n) {
-    if (isNumber(n)) {
-        return endian(n);
+function endian(value) {
+    if (isNumber(value)) {
+        return endianNumber(value);
     } else {
-        return endianArray(n);
+        return endianArray(value);
     }
-};
+}
 
 if (globalCrypto && isFunction(globalCrypto.getRandomValues)) {
-    randomBytes = function(size) {
-        return crypto.getRandomValues(new NativeUint8Array(size));
+    baseRandomBytes = function(size) {
+        return globalCrypto.getRandomValues(new NativeUint8Array(size));
     };
 } else {
-    randomBytes = function(size) {
+    baseRandomBytes = function(size) {
         var bytes = new NativeUint8Array(size),
             i = size;
 
@@ -57,17 +57,22 @@ if (globalCrypto && isFunction(globalCrypto.getRandomValues)) {
     };
 }
 
-crypto.randomBytes = function(size, callback) {
+function randomBytes(size, callback) {
     if (!isNumber(size)) {
         throw new TypeError("randomBytes(size[, callback]) size must be a number");
     } else {
         if (isFunction(callback)) {
-            process.nextTick(function() {
-                callback(undefined, randomBytes(size));
+            process.nextTick(function onNextTick() {
+                callback(undefined, baseRandomBytes(size));
             });
             return undefined;
         } else {
-            return randomBytes(size);
+            return baseRandomBytes(size);
         }
     }
-};
+}
+
+crypto.rotr = rotr;
+crypto.rotl = rotl;
+crypto.endian = endian;
+crypto.randomBytes = randomBytes;
