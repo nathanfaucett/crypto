@@ -1,12 +1,9 @@
 var isNumber = require("@nathanfaucett/is_number"),
-    isFunction = require("@nathanfaucett/is_function");
+    isFunction = require("@nathanfaucett/is_function"),
+    getRandomBytes = require("@nathanfaucett/get_random_bytes");
 
 
-var crypto = exports,
-
-    NativeUint8Array = typeof(Uint8Array) !== "undefined" ? Uint8Array : Array,
-    globalCrypto = global.crypto || global.msCrypto,
-    baseRandomBytes;
+var crypto = exports;
 
 
 function rotl(n, b) {
@@ -40,34 +37,17 @@ function endian(value) {
     }
 }
 
-if (globalCrypto && isFunction(globalCrypto.getRandomValues)) {
-    baseRandomBytes = function(size) {
-        return globalCrypto.getRandomValues(new NativeUint8Array(size));
-    };
-} else {
-    baseRandomBytes = function(size) {
-        var bytes = new NativeUint8Array(size),
-            i = size;
-
-        while (i--) {
-            bytes[i] = (Math.random() * 256) | 0;
-        }
-
-        return bytes;
-    };
-}
-
 function randomBytes(size, callback) {
     if (!isNumber(size)) {
         throw new TypeError("randomBytes(size[, callback]) size must be a number");
     } else {
         if (isFunction(callback)) {
             process.nextTick(function onNextTick() {
-                callback(undefined, baseRandomBytes(size));
+                callback(undefined, getRandomBytes(size));
             });
             return undefined;
         } else {
-            return baseRandomBytes(size);
+            return getRandomBytes(size);
         }
     }
 }
